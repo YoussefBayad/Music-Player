@@ -10,6 +10,9 @@ const songName = document.querySelector('.song-name');
 const audio = document.querySelector('audio');
 const volumeInput = document.querySelector('.volume');
 const volumeIcon = document.querySelector('.volume-icon');
+const songDuration = document.querySelector('.song-duration');
+const songCurrentTime = document.querySelector('.current-time');
+
 /* Data base*/
 const songs = [
   'PESETAS',
@@ -74,6 +77,12 @@ class Song {
     const progress = (currentTime * progressContainer) / duration;
     progressElement.style.width = `${progress}px`;
     btnProgress.style.left = `${progress}px`;
+    songDuration.innerText = `${Math.floor(duration / 60)}:${Math.floor(
+      duration % 60
+    )}`;
+    songCurrentTime.innerText = `${Math.floor(currentTime / 60)}:${Math.floor(
+      currentTime % 60
+    )}`;
   }
 
   // Set progress
