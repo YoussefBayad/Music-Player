@@ -12,15 +12,17 @@ const volumeInput = document.querySelector('.volume');
 const volumeIcon = document.querySelector('.volume-icon');
 const songDuration = document.querySelector('.song-duration');
 const songCurrentTime = document.querySelector('.current-time');
-
+const container = document.querySelector('.container');
+const range = document.querySelector('#volume-range');
 /* Data base*/
 const songs = [
-  'PESETAS',
+  'Pesetas',
   'Away',
   'Time',
   'Rebeus in Oran',
   'Thank God',
   'Understood',
+  'Remedy',
 ];
 let index = 0;
 /* Functionality */
@@ -29,7 +31,7 @@ class Song {
   static uploadSong(song) {
     audio.src = `/songs/${song}.mp3`;
     img.src = `/img/${song}.jpg`;
-    songName.innerText = `${song}`;
+    songName.innerText = `Riles-${song}`;
   }
   // Play
   static playSong() {
@@ -72,14 +74,18 @@ class Song {
 
   // Update Progress
   static updateProgress(e) {
-    const { currentTime, duration } = e.target;
+    let { currentTime, duration } = e.target;
+    if (isNaN(duration)) {
+      console.log(9);
+      duration = 0;
+    }
     const progressContainer = progressContainerElement.clientWidth;
     const progress = (currentTime * progressContainer) / duration;
     progressElement.style.width = `${progress}px`;
     btnProgress.style.left = `${progress}px`;
-    songDuration.innerText = `${Math.floor(duration / 60)}:${Math.floor(
-      duration % 60
-    )}`;
+    let minutes = Math.floor(duration / 60);
+    let seconds = Math.floor(duration % 60);
+    songDuration.innerText = `${minutes}:${seconds}`;
     songCurrentTime.innerText = `${Math.floor(currentTime / 60)}:${Math.floor(
       currentTime % 60
     )}`;
@@ -96,24 +102,30 @@ class Song {
 
   // volume
   static volumeSong(e) {
-    const volumePercent = e.target.value;
-    if (volumePercent == 0) {
-      volumeIcon.innerHTML = `<i class="fas fa-volume-mute "></i>`;
-    } else if (volumePercent <= 40) {
-      volumeIcon.innerHTML = `<i class="fas fa-volume-down "></i>`;
-    } else {
-      volumeIcon.innerHTML = `<i class="fas fa-volume-up "></i>`;
-    }
+    if (e.type == 'change') {
+      const volumePercent = e.target.value;
+      console.log(e);
+      if (volumePercent == 0) {
+        volumeIcon.innerHTML = `<i class="fas fa-volume-mute "></i>`;
+      } else if (volumePercent <= 40) {
+        volumeIcon.innerHTML = `<i class="fas fa-volume-down "></i>`;
+      } else {
+        volumeIcon.innerHTML = `<i class="fas fa-volume-up "></i>`;
+      }
 
-    audio.volume = volumePercent / 100;
+      audio.volume = volumePercent / 100;
+    }
   }
+
+  // Favorite song
   static favoriteSong() {
-    heart.style.color == 'black'
+    heart.style.color == '#ff4f84'
       ? (heart.style.color = '#fef1f5')
-      : (heart.style.color = 'black');
+      : (heart.style.color = '#ff4f84');
   }
 }
 
+/*
 /* Events */
 
 // Play & Pause
@@ -125,16 +137,51 @@ playBtn.addEventListener('click', () => {
   }
 });
 
-document.addEventListener('keydown', (e) => {
-  if (e.keyCode == 13 || e.keyCode == 32) {
+// keyboard functionality
+let audioCurrentVolume = audio.volume;
+container.addEventListener('keydown', (e) => {
+  // Play & Pause
+  if (e.keyCode === 13 || e.keyCode === 32) {
     if (audio.paused) {
-      Song.playSong();
+      audio.play;
     } else {
-      Song.pauseSong();
+      audio.pause;
     }
   }
-});
+  // song progress plus
+  if (e.keyCode === 37) {
+    current = audio.currentTime;
+    current -= 5;
+    if (current >= 0) {
+      audio.volume = 0;
+      audio.currentTime = current;
+    } else {
+      audio.currentTime = 0;
+    }
+  }
+  // song progress back
 
+  if (e.keyCode === 39) {
+    current = audio.currentTime;
+    current += 5;
+    if (current >= audio.duration) {
+      Song.nextSong();
+    } else {
+      audio.volume = 0;
+      audio.currentTime = current;
+    }
+  }
+
+  // Volume Up
+  if (e.keyCode === 38) {
+    Song.volumeSong(e);
+  }
+});
+container.addEventListener('keyup', (e) => {
+  if (e.keyCode == 37 || e.keyCode == 39) {
+    audio.volume = audioCurrentVolume;
+  }
+});
 // Next & previous
 
 next.addEventListener('click', Song.nextSong);
@@ -153,3 +200,36 @@ audio.addEventListener('ended', Song.endSong);
 // favorite
 
 heart.addEventListener('click', Song.favoriteSong);
+
+// muted
+volumeIcon.addEventListener('click', (e) => {
+  if (audio.volume === 0) {
+    volumeIcon.innerHTML = `<i class="fas fa-volume-up "></i>`;
+    audio.volume = 1;
+  } else {
+    volumeIcon.innerHTML = `<i class="fas fa-volume-mute "></i>`;
+    audio.volume = 0;
+  }
+
+  console.log('volume muted');
+});
+
+/// my i need
+//  else {
+//   if (e.keyCode === 38) {
+//     if (audio.volume >= 0.9) {
+//       audio.volume = 0.9;
+//     } else {
+//       audio.volume += 0.1;
+
+//       range.valueAsNumber += 10;
+//       if (audio.volume === 0) {
+//         volumeIcon.innerHTML = `<i class="fas fa-volume-mute "></i>`;
+//       } else if (audio.volume <= 0.4) {
+//         volumeIcon.innerHTML = `<i class="fas fa-volume-down "></i>`;
+//       } else {
+//         volumeIcon.innerHTML = `<i class="fas fa-volume-up "></i>`;
+//       }
+//     }
+//   }
+// }
