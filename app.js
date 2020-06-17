@@ -1,20 +1,30 @@
-const heart = document.querySelector('.heart');
-const img = document.querySelector('.img');
-const progressElement = document.querySelector('.progress');
-const progressContainerElement = document.querySelector('.progress-container');
-const btnProgress = document.querySelector('.btn-progress');
-const playBtn = document.querySelector('#play');
-const previous = document.querySelector('#previous');
-const next = document.querySelector('#next');
-const songName = document.querySelector('.song-name');
-const audio = document.querySelector('audio');
-const volumeInput = document.querySelector('.volume');
-const volumeIcon = document.querySelector('.volume-icon');
-const songDuration = document.querySelector('.song-duration');
-const songCurrentTime = document.querySelector('.current-time');
-const container = document.querySelector('.container');
-const range = document.querySelector('#volume-range');
+// assigning variables
+function qS(selector) {
+  return document.querySelector(selector);
+}
+const heart = qS('.heart');
+const img = qS('.img');
+const progressElement = qS('.progress');
+const progressContainerElement = qS('.progress-container');
+const btnProgress = qS('.btn-progress');
+const playBtn = qS('#play');
+const previous = qS('#previous');
+const next = qS('#next');
+const songName = qS('.song-name');
+const audio = qS('audio');
+const volumeIcon = qS('.volume-icon');
+const songDuration = qS('.song-duration');
+const songCurrentTime = qS('.current-time');
+const container = qS('.container');
+const range = qS('#volume-range');
+const burger = qS('.burger');
+const songsMenu = qS('.songs-menu');
+const title = qS('.title');
+const header = qS('header');
+let audioCurrentVolume = audio.volume;
+
 /* Data base*/
+
 const songs = [
   'Pesetas',
   'Away',
@@ -24,10 +34,17 @@ const songs = [
   'Understood',
   'Remedy',
 ];
+
+//index
+
 let index = 0;
+
 /* Functionality */
 
+/*  Song class*/
+
 class Song {
+  // upload
   static uploadSong(song) {
     audio.src = `/songs/${song}.mp3`;
     img.src = `/img/${song}.jpg`;
@@ -45,11 +62,6 @@ class Song {
     audio.pause();
     img.classList.remove('rotate');
     playBtn.innerHTML = `<i class="fas fa-play-circle"></i>`;
-  }
-
-  // Song End
-  static endSong() {
-    Song.nextSong();
   }
 
   // Next song
@@ -76,7 +88,6 @@ class Song {
   static updateProgress(e) {
     let { currentTime, duration } = e.target;
     if (isNaN(duration)) {
-      console.log(9);
       duration = 0;
     }
     const progressContainer = progressContainerElement.clientWidth;
@@ -101,27 +112,40 @@ class Song {
   }
 
   // volume
-  static volumeSong(e) {
-    if (e.type == 'change') {
-      const volumePercent = e.target.value;
-      console.log(e);
-      if (volumePercent == 0) {
-        volumeIcon.innerHTML = `<i class="fas fa-volume-mute "></i>`;
-      } else if (volumePercent <= 40) {
-        volumeIcon.innerHTML = `<i class="fas fa-volume-down "></i>`;
-      } else {
-        volumeIcon.innerHTML = `<i class="fas fa-volume-up "></i>`;
-      }
+  static volumeSong(volumePercent) {
+    audio.volume = volumePercent / 100;
 
-      audio.volume = volumePercent / 100;
+    if (volumePercent == 0) {
+      volumeIcon.innerHTML = `<i class="fas fa-volume-mute "></i>`;
+    } else if (volumePercent <= 40) {
+      volumeIcon.innerHTML = `<i class="fas fa-volume-down "></i>`;
+    } else {
+      volumeIcon.innerHTML = `<i class="fas fa-volume-up "></i>`;
     }
   }
 
   // Favorite song
   static favoriteSong() {
-    heart.style.color == '#ff4f84'
-      ? (heart.style.color = '#fef1f5')
-      : (heart.style.color = '#ff4f84');
+    if (heart.style.color == 'darkorchid') {
+      heart.style.color = '#af8b94';
+    } else {
+      heart.style.color = 'darkorchid';
+    }
+  }
+  //open SongsMenu
+  static songsMenuOpen() {
+    burger.classList.add('burger-clicked');
+    songsMenu.classList.add('visible');
+    container.classList.add('container-float');
+    songsMenu.appendChild(burger);
+  }
+
+  //close SongsMenu
+  static songsMenuClosed() {
+    burger.classList.remove('burger-clicked');
+    songsMenu.classList.remove('visible');
+    container.classList.remove('container-float');
+    header.insertBefore(burger, title);
   }
 }
 
@@ -137,29 +161,90 @@ playBtn.addEventListener('click', () => {
   }
 });
 
-// keyboard functionality
-let audioCurrentVolume = audio.volume;
-container.addEventListener('keydown', (e) => {
+// Next & previous
+
+next.addEventListener('click', Song.nextSong);
+previous.addEventListener('click', Song.previousSong);
+
+// update & set Progress
+audio.addEventListener('timeupdate', Song.updateProgress);
+progressContainerElement.addEventListener('click', Song.setProgress);
+
+// volume
+
+range.addEventListener('change', (e) => {
+  const volumePercent = e.target.value;
+  Song.volumeSong(volumePercent);
+});
+
+// Song Ended
+audio.addEventListener('ended', Song.nextSong);
+
+// favorite
+
+heart.addEventListener('click', Song.favoriteSong);
+
+// muted
+volumeIcon.addEventListener('click', (e) => {
+  if (audio.volume === 0) {
+    volumeIcon.innerHTML = `<i class="fas fa-volume-up "></i>`;
+    audio.volume = 0.5;
+    range.value = 50;
+  } else {
+    volumeIcon.innerHTML = `<i class="fas fa-volume-mute "></i>`;
+    audio.volume = 0;
+    range.value = 0;
+  }
+});
+
+// Burger & SongsMenu events
+
+burger.addEventListener('click', (e) => {
+  if (burger.classList.contains('burger-clicked')) {
+    Song.songsMenuClosed();
+  } else {
+    Song.songsMenuOpen();
+  }
+});
+
+// closing SongsMenu by clicking outside
+
+document.addEventListener('click', (e) => {
+  const ifClickInsideMenu = songsMenu.contains(e.target);
+  const ifClickInsideBurger = burger.contains(e.target);
+
+  if (!ifClickInsideMenu && !ifClickInsideBurger) {
+    Song.songsMenuClosed();
+  }
+});
+
+// playing songs by clicking in the song menu
+
+const songsList = document.querySelectorAll('.songs-menu li');
+for (let i = 0; i < songsList.length; i++) {
+  songsList[i].addEventListener('click', (e) => {
+    Song.uploadSong(songs[i]);
+    Song.playSong();
+  });
+}
+
+/**/
+
+/* keyboard functionality*/
+/**/
+
+document.addEventListener('keydown', (e) => {
   // Play & Pause
   if (e.keyCode === 13 || e.keyCode === 32) {
     if (audio.paused) {
-      audio.play;
+      Song.playSong();
     } else {
-      audio.pause;
+      Song.pauseSong();
     }
   }
-  // song progress plus
-  if (e.keyCode === 37) {
-    current = audio.currentTime;
-    current -= 5;
-    if (current >= 0) {
-      audio.volume = 0;
-      audio.currentTime = current;
-    } else {
-      audio.currentTime = 0;
-    }
-  }
-  // song progress back
+  // song progress
+
+  //  Plus
 
   if (e.keyCode === 39) {
     current = audio.currentTime;
@@ -172,64 +257,31 @@ container.addEventListener('keydown', (e) => {
     }
   }
 
-  // Volume Up
-  if (e.keyCode === 38) {
-    Song.volumeSong(e);
+  // Back
+  if (e.keyCode === 37) {
+    current = audio.currentTime;
+    current -= 5;
+    if (current >= 0) {
+      audio.volume = 0;
+      audio.currentTime = current;
+    } else {
+      audio.currentTime = 0;
+    }
+  }
+
+  // Volume Up and Down
+  if (e.keyCode == 38) {
+    range.value = Number(range.value) + 10;
+
+    Song.volumeSong(Number(range.value));
+  } else if (e.keyCode == 40) {
+    range.value = Number(range.value) - 10;
+    Song.volumeSong(Number(range.value));
   }
 });
-container.addEventListener('keyup', (e) => {
-  if (e.keyCode == 37 || e.keyCode == 39) {
+
+document.addEventListener('keyup', (e) => {
+  if (e.keyCode == 39 || e.keyCode == 37) {
     audio.volume = audioCurrentVolume;
   }
 });
-// Next & previous
-
-next.addEventListener('click', Song.nextSong);
-previous.addEventListener('click', Song.previousSong);
-
-// update & set Progress
-audio.addEventListener('timeupdate', Song.updateProgress);
-progressContainerElement.addEventListener('click', Song.setProgress);
-
-// volume
-volumeInput.addEventListener('change', Song.volumeSong);
-
-// Song Ended
-audio.addEventListener('ended', Song.endSong);
-
-// favorite
-
-heart.addEventListener('click', Song.favoriteSong);
-
-// muted
-volumeIcon.addEventListener('click', (e) => {
-  if (audio.volume === 0) {
-    volumeIcon.innerHTML = `<i class="fas fa-volume-up "></i>`;
-    audio.volume = 1;
-  } else {
-    volumeIcon.innerHTML = `<i class="fas fa-volume-mute "></i>`;
-    audio.volume = 0;
-  }
-
-  console.log('volume muted');
-});
-
-/// my i need
-//  else {
-//   if (e.keyCode === 38) {
-//     if (audio.volume >= 0.9) {
-//       audio.volume = 0.9;
-//     } else {
-//       audio.volume += 0.1;
-
-//       range.valueAsNumber += 10;
-//       if (audio.volume === 0) {
-//         volumeIcon.innerHTML = `<i class="fas fa-volume-mute "></i>`;
-//       } else if (audio.volume <= 0.4) {
-//         volumeIcon.innerHTML = `<i class="fas fa-volume-down "></i>`;
-//       } else {
-//         volumeIcon.innerHTML = `<i class="fas fa-volume-up "></i>`;
-//       }
-//     }
-//   }
-// }
