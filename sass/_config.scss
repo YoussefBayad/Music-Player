@@ -1,0 +1,26 @@
+/* colors  */
+
+$blue: #12373b;
+$pink: #ff4f84;
+$grey: #eaedee;
+$muted-color: rgba(206, 194, 194, 0.514);
+$danger: rgb(238, 83, 83);
+
+/*  mixin */
+
+// flex box
+
+@mixin flex($direction: 'row', $align: 'start', $justify: 'start') {
+  display: flex;
+  flex-direction: unquote($direction);
+  align-items: unquote($align);
+  justify-content: unquote($justify);
+}
+
+/* extands */
+
+//trasition
+
+.transition {
+  transition: all 0.7s ease;
+}

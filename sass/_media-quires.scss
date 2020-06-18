@@ -1,0 +1,59 @@
+/*width */
+@media screen and (min-width: 700px) {
+  .container-float {
+    width: 50%;
+    transform: translateX(50%);
+  }
+  .visible {
+    left: 0;
+  }
+}
+
+@media screen and (max-width: 699px) {
+  .songs-menu {
+    width: 100%;
+    left: -120%;
+  }
+  .visible {
+    left: 0;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+}
+@media screen and (max-width: 500px) {
+  .container {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 400px) {
+  header {
+    justify-content: space-between;
+  }
+  .title {
+    display: none;
+  }
+  /* .current-time,
+    .song-duration {
+      display: none;
+    } */
+  .progress-container {
+    width: 70%;
+  }
+}
+/* Height  */
+@media screen and (max-height: 600px) {
+  .img {
+    height: 100px;
+    width: 100px;
+  }
+  .progress-container {
+    margin: 0;
+  }
+}
+@media screen and (max-height: 400px) {
+  .img {
+    display: none;
+  }
+}

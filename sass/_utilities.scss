@@ -1,0 +1,77 @@
+@import 'config';
+
+// container
+.container {
+  width: 500px;
+  margin: auto;
+  height: 100vh;
+  padding: 2rem;
+  text-align: center;
+  @include flex(column, center, space-around);
+  transition: all 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+// buttons
+
+.btn {
+  outline: 0;
+  border: 0;
+  font-size: 2.3rem;
+  margin: 0 1.5rem;
+  color: #12373b;
+  background-color: transparent;
+  @extend .transition;
+
+  & > * {
+    cursor: pointer;
+  }
+  &:hover {
+    color: lighten($blue, 8%);
+    transform: scale(1.2);
+  }
+}
+
+// burger
+.burger {
+  height: 20px;
+  @include flex(column, center, space-between);
+  cursor: pointer;
+  z-index: 2;
+  @extend .transition;
+
+  & > * {
+    width: 35px;
+    height: 4px;
+    border-radius: 3rem;
+    background-color: $blue;
+    @extend .transition;
+  }
+  &:hover > * {
+    background-color: lighten($pink, 20%);
+    transform: scaleY(1.3);
+  }
+  &:hover {
+    transform: scale(1.1);
+  }
+  //burger clicked
+  &-clicked {
+    position: absolute;
+    top: 35px;
+    left: 80%;
+  }
+
+  &-clicked div:nth-child(2) {
+    display: none;
+  }
+  &-clicked div:nth-child(1) {
+    background-color: $danger;
+    transform: rotate(45deg);
+  }
+  &-clicked div:nth-child(3) {
+    background-color: $danger;
+    transform: translateY(-16px) rotate(-45deg);
+  }
+  &-clicked:hover > * {
+    box-shadow: $danger 1px 1px 5px;
+  }
+}
